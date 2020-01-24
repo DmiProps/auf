@@ -1,7 +1,32 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"net/http"
+	"text/template"
+
+	"github.com/gorilla/mux"
+)
 
 func main() {
-	fmt.Printf("hello, world\n")
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		t, _ := template.ParseFiles("www/index.html")
+		t.Execute(w, nil)
+	}
+
+	r := mux.NewRouter()
+	r.HandleFunc("/", handler)
+
+	r.PathPrefix("/css").Handler(
+		http.StripPrefix(
+			"/css",
+			http.FileServer(http.Dir("./www/css"))))
+	r.PathPrefix("/images").Handler(
+		http.StripPrefix(
+			"/images",
+			http.FileServer(http.Dir("./www/images"))))
+
+	http.Handle("/", r)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
