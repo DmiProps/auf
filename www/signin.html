@@ -5,7 +5,7 @@
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
-  <title>Auth Framework</title>
+  <title>Account Signin</title>
   <meta name="description" content="Auth Framework">
   <meta name="author" content="DmiProps">
 
@@ -29,33 +29,34 @@
   <link rel="icon" type="image/png" href="images/logoicon.png">
 
 </head>
-<body>
+<body style="background-color: rgb(240, 240, 240);">
 
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="container">
 
-    <div class="row">
-      <div class="one-half column" style="margin-top: 15px;">
-        <img src="images/logoicon.png" style="width: 40px; float: left; margin-right: 10px;">
-        <p style="font-family: Poiret One; margin-top: 9px;">AUTH FRAMEWORK</p>
-      </div>
-      <div class="one-half column" style="margin-top: 20px; text-align: right;"> 
-        <a href="/www/signin.html">Sign In</a>
-      </div>
-    </div>
+    <div class="row" style="margin-top: 10%;">
+      <div class="three columns"><p></p></div>
+      <div class="six columns">
+        <form class="shadow" style="background-color: white; padding: 50px;">
+          <p style="text-align: center;"><a href="/"><img src="images/logoicon.png" style="width: 60px; text-align: center;"></a></p>
+          <p style="font-family: Poiret One; text-align: center; font-weight: bold;">AUTH FRAMEWORK</p>
+          <input class="u-full-width" style="height: 50px;" type="text" placeholder="Username or E-mail address or Phone number" id="userInput">
+          <input class="u-full-width" style="height: 50px;" type="password" placeholder="Password" id="passInput">
+          <p style="text-align: center;"><a class="button button-primary u-full-width" href="/www/signup.html">Sign In</a></p>
 
-    <div class="row">
-      <div class="one-half column"style="margin-top: 35%;">
-        <h4>Auth Framework</h4>
-        <p>Auth Framework demonstrates the implementation of registration and authorization tools using email and phone.</p>
-        <p>Password recovery and attack protection are supported.</p>
+          <div class="row">
+            <div class="one-half column">
+              <a href="/www/signin.html">Forgot Password?</a>
+            </div>
+            <div class="one-half column" style="text-align: right;">
+              <a href="/www/signup.html">Sign Up</a>
+            </div>
+          </div>
+
+        </form>
       </div>
-      <div class="one-half column" style="margin-top: 20%; text-align: center;">
-        <h4>New Account</h4>
-        <p>Register to check the functioning of the Auth Framework. You will need to enter your email address or phone number.</p>
-        <a class="button button-primary" href="/www/signup.html">Create Account ></a>
-      </div>
+      <div class="three columns"><p></p></div>
     </div>
 
   </div>
@@ -81,5 +82,5 @@
 
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-</body>
+</body style="background-color: rgb(250, 250, 250);">
 </html>
