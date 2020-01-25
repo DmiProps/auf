@@ -32,5 +32,5 @@ func main() {
 			http.FileServer(http.Dir("./www/images"))))
 
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
