@@ -4,20 +4,20 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"text/template"
 
 	"github.com/gorilla/mux"
+
+	"github.com/DmiProps/auf/handlers"
+	"github.com/DmiProps/auf/settings"
 )
 
 func main() {
 
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		t, _ := template.ParseFiles("www/index.html")
-		t.Execute(w, nil)
-	}
+	settings.ReadSettings()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", handler)
+	r.HandleFunc("/", handlers.Index)
+	r.HandleFunc("/signup", handlers.Signup)
 
 	r.PathPrefix("/www").Handler(
 		http.StripPrefix(
@@ -40,4 +40,5 @@ func main() {
 	}
 
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+
 }

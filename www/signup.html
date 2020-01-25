@@ -26,7 +26,12 @@
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="images/logoicon.png">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="./scripts/handlers.js"></script>
 
 </head>
 <body style="background-color: rgb(240, 240, 240);">
@@ -38,14 +43,14 @@
     <div class="row" style="margin-top: 10%;">
       <div class="three columns"><p></p></div>
       <div class="six columns">
-        <form class="shadow" style="background-color: white; padding: 50px;">
+        <form class="shadow" method="POST" id="signup" style="background-color: white; padding: 50px;">
           <p style="text-align: center;"><a href="/"><img src="images/logoicon.png" style="width: 60px; text-align: center;"></a></p>
           <p style="font-family: Poiret One; text-align: center; font-weight: bold;">AUTH FRAMEWORK</p>
-          <input class="u-full-width" style="height: 50px;" type="text" placeholder="Username" id="userInput">
-          <input class="u-full-width" style="height: 50px;" type="password" placeholder="Password" id="passInput">
-          <input class="u-full-width" style="height: 50px;" type="email" placeholder="E-mail address" id="emailInput">
-          <input class="u-full-width" style="height: 50px;" type="tel" placeholder="Phone number" id="phoneInput">
-          <p style="text-align: center;"><a class="button button-primary u-full-width" href="/">Sign Up</a></p>
+          <input class="u-full-width" style="height: 50px;" type="text" placeholder="Username" id="userInput" oninput="resetFault(this)">
+          <input class="u-full-width" style="height: 50px;" type="password" placeholder="Password" id="passInput" oninput="resetFault(this)">
+          <input class="u-full-width" style="height: 50px;" type="email" placeholder="E-mail address" id="emailInput" oninput="resetFaultEmailPhone()">
+          <input class="u-full-width" style="height: 50px;" type="tel" placeholder="Phone number" id="phoneInput" oninput="resetFaultEmailPhone()">
+          <p style="text-align: center;"><a class="button button-primary u-full-width" onclick="signUp()">Sign Up</a></p>
           <p style="text-align: center; color: lightgrey;">Have an account? <a href="/www/signin.html">Sign In</a></p>
         </form>
       </div>
