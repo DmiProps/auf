@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"text/template"
 
 	"github.com/gorilla/mux"
@@ -32,5 +33,11 @@ func main() {
 			http.FileServer(http.Dir("./www/images"))))
 
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(":3000", nil))
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
