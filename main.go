@@ -18,6 +18,10 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler)
 
+	r.PathPrefix("/www").Handler(
+		http.StripPrefix(
+			"/www",
+			http.FileServer(http.Dir("./www"))))
 	r.PathPrefix("/css").Handler(
 		http.StripPrefix(
 			"/css",
