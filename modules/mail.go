@@ -2,14 +2,15 @@ package modules
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/smtp"
-	"os"
 
 	"github.com/DmiProps/auf/settings"
 )
 
 // SendActivationMail sends activation e-mail with ref
-func SendActivationMail(to string) {
+func SendActivationMail(toName, toAddr string) {
 
 	// Create the authentication for the SendMail()
 	// using PlainText, but other authentication methods are encouraged
@@ -18,17 +19,35 @@ func SendActivationMail(to string) {
 	// NOTE: Using the backtick here ` works like a heredoc, which is why all the
 	// rest of the lines are forced to the beginning of the line, otherwise the
 	// formatting is wrong for the RFC 822 style
-	message := `To: "Some User" <someuser@example.com>
-From: "Other User" <otheruser@example.com>
-Subject: Testing Email From Go!!
-
-This is the message we are sending. That's it!
-`
-
-	if err := smtp.SendMail(settings.AppSettings.MailHost+":25", auth, settings.AppSettings.NoreplyEmail, []string{to}, []byte(message)); err != nil {
-		fmt.Println("Error SendMail: ", err)
-		os.Exit(1)
+	addr := settings.AppSettings.MailHost + ":" + settings.AppSettings.SMTPPort
+	from := settings.AppSettings.NoreplyEmail
+	msg, err := makeMessage("activation-mail", toName, toAddr, from)
+	if err != nil {
+		log.Fatalln("Error makeMessage: ", err)
+		return
 	}
-	fmt.Println("Email Sent!")
+
+	if err := smtp.SendMail(addr, auth, from, []string{toAddr}, []byte(msg)); err != nil {
+		log.Fatalln("Error SendActivationMail: ", err)
+	} else {
+		fmt.Println("Email Sent!")
+	}
+
+}
+
+func makeMessage(tmpl string, a ...interface{}) (string, error) {
+
+	wrap, err := ioutil.ReadFile("./templates/" + tmpl + ".wrap")
+	if err != nil {
+		return "", err
+	}
+	html, err := ioutil.ReadFile("./templates/" + tmpl + ".html")
+	if err != nil {
+		return "", err
+	}
+
+	msg := fmt.Sprintf(string(wrap), a...)
+
+	return msg + "\n\n" + string(html), nil
 
 }

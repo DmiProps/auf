@@ -1,0 +1,4 @@
+To: "%s" <%s>
+From: "Auth Framework" <%s>
+Subject: Activation Your Account to Auth Framework
+Content-type: text/html; charset=utf-8

@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+
+	"github.com/DmiProps/auf/modules"
 )
 
 type signUpData struct {
@@ -24,9 +25,6 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 
-	fmt.Println(data.User)
-	fmt.Println(data.Pass)
-	fmt.Println(data.Email)
-	fmt.Println(data.Phone)
+	modules.SendActivationMail(data.User, data.Email)
 
 }

@@ -7,12 +7,6 @@ function resetFault(item) {
   
 }
 
-// Reset class 'fault' email and phone together
-function resetFaultEmailPhone() {
-  resetFault(document.getElementById('emailInput'));
-  resetFault(document.getElementById('phoneInput'));
-}
-
 // Validate and send registration data
 function signUp() {
 
@@ -32,9 +26,8 @@ function signUp() {
     document.getElementById('passInput').classList.add('fault');
     valid = false;
   }
-  if (data.email == '' && data.phone == '') {
+  if (data.email == '') {
     document.getElementById('emailInput').classList.add('fault');
-    document.getElementById('phoneInput').classList.add('fault');
     valid = false;
   }
   if (!valid) {
