@@ -3,7 +3,6 @@ package settings
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -27,18 +26,35 @@ func ReadSettings() {
 	jsonFile, err := os.Open("./settings/settings.json")
 
 	// If we os.Open returns an error then handle it
-	if err != nil {
-		log.Fatalln("Error ReadSettings: ", err)
-		return
+	if err == nil {
+
+		// Defer the closing of our jsonFile so that we can parse it later on
+		defer jsonFile.Close()
+
+		byteValue, _ := ioutil.ReadAll(jsonFile)
+
+		// Unmarshal our byteArray which contains our
+		// jsonFile's content into 'AppSettings' which we defined above
+		json.Unmarshal(byteValue, &AppSettings)
+
 	}
 
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	// Defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
-
-	// Unmarshal our byteArray which contains our
-	// jsonFile's content into 'AppSettings' which we defined above
-	json.Unmarshal(byteValue, &AppSettings)
+	// If the environment variables are set, then take the settings from them
+	a := os.Getenv("MailHost")
+	if a != "" {
+		AppSettings.MailHost = a
+	}
+	a = os.Getenv("SMTPPort")
+	if a != "" {
+		AppSettings.SMTPPort = a
+	}
+	a = os.Getenv("NoreplyEmail")
+	if a != "" {
+		AppSettings.NoreplyEmail = a
+	}
+	a = os.Getenv("NoreplyPassword")
+	if a != "" {
+		AppSettings.NoreplyPassword = a
+	}
 
 }
