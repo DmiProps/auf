@@ -1,10 +1,12 @@
 package modules
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/smtp"
+	"strings"
 
 	"github.com/DmiProps/auf/settings"
 )
@@ -27,6 +29,8 @@ func SendActivationMail(toName, toAddr string) {
 		return
 	}
 
+	fmt.Println(msg)
+
 	if err := smtp.SendMail(addr, auth, from, []string{toAddr}, []byte(msg)); err != nil {
 		log.Fatalln("Error SendActivationMail: ", err)
 	} else {
@@ -35,7 +39,14 @@ func SendActivationMail(toName, toAddr string) {
 
 }
 
-func makeMessage(tmpl string, a ...interface{}) (string, error) {
+func makeMessage(tmpl, toName string, a ...interface{}) (string, error) {
+
+	var imgBase64 = ""
+
+	img, err := ioutil.ReadFile("./www/images/logoicon.png")
+	if err == nil {
+		imgBase64 = base64.StdEncoding.EncodeToString([]byte(img))
+	}
 
 	wrap, err := ioutil.ReadFile("./templates/" + tmpl + ".wrap")
 	if err != nil {
@@ -46,8 +57,11 @@ func makeMessage(tmpl string, a ...interface{}) (string, error) {
 		return "", err
 	}
 
+	htmlString := strings.Replace(string(html), "{base64}", imgBase64, -1)
+	htmlString = strings.Replace(htmlString, "{user}", toName, -1)
+
 	msg := fmt.Sprintf(string(wrap), a...)
 
-	return msg + "\n\n" + string(html), nil
+	return msg + "\n\n" + htmlString, nil
 
 }

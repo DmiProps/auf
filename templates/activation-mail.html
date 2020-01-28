@@ -1,11 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
+  <title>Account Signup</title>
+  <meta name="description" content="Auth Framework">
+  <meta name="author" content="DmiProps">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Poiret One:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      
+      font-family: Raleway;
+    }
+    div.container {
+      background-color: white;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 30px;
+      margin-bottom: 30px;
+      width: 400px;
+      max-width: 88%;
+      text-align: center;
+    }
+    div.division {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, rgb(240, 240, 240), lightgray, rgb(240, 240, 240));
+    }
+    p.logo {
+      font-family: Poiret One;
+      text-align: center;
+      font-weight: bold;
+    }
+    .shadow {
+      background: rgb(240, 240, 240);
+      box-shadow: 0 0 10px rgba(150,150,150,0.5);
+      padding: 10px;
+    }
+  </style>
+
 </head>
 <body>
-  <p style="font-size: 20px">This is</p><p> the message we are sending. That's it!</p>
-  <img src="./../www/images/logoicon.png">
-  <p>Test after image</p>
-</body>
+  
+  <div class="container shadow">
+    <p style="text-align: center; margin-top: 10px;"><img src="data:image/png;base64,{base64}" width="32" height="32"></p>
+    <p class="logo">AUTH FRAMEWORK</p>
+    <div class="division"><p></p></div>
+    <p>Welcome {user}!</p>
+    <p>Thanks for signing up with Auth Framework!</p>
+    <p>You must follow this link to activate your account:</p>
+    <p><a href="about:black">Ref</a></p>
+  </div>
+
+</body style="background-color: rgb(240, 240, 240);">
 </html>
