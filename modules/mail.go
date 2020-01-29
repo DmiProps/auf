@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -39,13 +38,6 @@ func SendActivationMail(toName, toAddr string) {
 
 func makeMessage(tmpl, toName string, a ...interface{}) (string, error) {
 
-	var imgBase64 string
-
-	img, err := ioutil.ReadFile("./www/images/auth-32x32.png")
-	if err == nil {
-		imgBase64 = base64.StdEncoding.EncodeToString([]byte(img))
-	}
-
 	wrap, err := ioutil.ReadFile("./templates/" + tmpl + ".wrap")
 	if err != nil {
 		return "", err
@@ -55,8 +47,8 @@ func makeMessage(tmpl, toName string, a ...interface{}) (string, error) {
 		return "", err
 	}
 
-	htmlString := strings.Replace(string(html), "{base64}", imgBase64, -1)
-	htmlString = strings.Replace(htmlString, "{user}", toName, -1)
+	htmlString := strings.Replace(string(html), "{User}", toName, -1)
+	htmlString = strings.Replace(htmlString, "{Host}", settings.AppSettings.Host, -1)
 
 	msg := fmt.Sprintf(string(wrap), a...)
 

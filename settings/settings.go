@@ -12,6 +12,7 @@ type Settings struct {
 	SMTPPort        string
 	NoreplyEmail    string
 	NoreplyPassword string
+	Host            string
 }
 
 var (
@@ -55,6 +56,10 @@ func ReadSettings() {
 	a = os.Getenv("NoreplyPassword")
 	if a != "" {
 		AppSettings.NoreplyPassword = a
+	}
+	a = os.Getenv("Host")
+	if a != "" {
+		AppSettings.Host = a
 	}
 
 }
