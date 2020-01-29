@@ -18,7 +18,7 @@ type Settings struct {
 	NoreplyPassword string
 
 	// Database settings
-	//TO-DO
+	DbConnection string
 }
 
 var (
@@ -72,6 +72,9 @@ func ReadSettings() {
 	}
 
 	// Database settings
-	//TO-DO
+	a = os.Getenv("DbConnection")
+	if a != "" {
+		AppSettings.DbConnection = a
+	}
 
 }

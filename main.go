@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/DmiProps/auf/database"
 	"github.com/DmiProps/auf/handlers"
 	"github.com/DmiProps/auf/settings"
 )
@@ -14,6 +15,8 @@ import (
 func main() {
 
 	settings.ReadSettings()
+
+	database.GetConnect()
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.Index)
