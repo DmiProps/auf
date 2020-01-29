@@ -8,11 +8,17 @@ import (
 
 // Settings with params fo rauth framework
 type Settings struct {
+	// Main settings
+	Host string
+
+	// E-mail settings
 	MailHost        string
 	SMTPPort        string
 	NoreplyEmail    string
 	NoreplyPassword string
-	Host            string
+
+	// Database settings
+	//TO-DO
 }
 
 var (
@@ -41,7 +47,14 @@ func ReadSettings() {
 	}
 
 	// If the environment variables are set, then take the settings from them
-	a := os.Getenv("MailHost")
+	// Main settings
+	a := os.Getenv("Host")
+	if a != "" {
+		AppSettings.Host = a
+	}
+
+	// E-mail settings
+	a = os.Getenv("MailHost")
 	if a != "" {
 		AppSettings.MailHost = a
 	}
@@ -57,9 +70,8 @@ func ReadSettings() {
 	if a != "" {
 		AppSettings.NoreplyPassword = a
 	}
-	a = os.Getenv("Host")
-	if a != "" {
-		AppSettings.Host = a
-	}
+
+	// Database settings
+	//TO-DO
 
 }

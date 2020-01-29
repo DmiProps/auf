@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/DmiProps/auf/modules"
+	"github.com/DmiProps/auf/communications"
 )
 
 type signUpData struct {
@@ -25,6 +25,6 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 
-	modules.SendActivationMail(data.User, data.Email)
+	communications.SendActivationMail(data.User, data.Email)
 
 }
