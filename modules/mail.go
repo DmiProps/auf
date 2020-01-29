@@ -29,8 +29,6 @@ func SendActivationMail(toName, toAddr string) {
 		return
 	}
 
-	fmt.Println(msg)
-
 	if err := smtp.SendMail(addr, auth, from, []string{toAddr}, []byte(msg)); err != nil {
 		log.Fatalln("Error SendActivationMail: ", err)
 	} else {
@@ -41,9 +39,9 @@ func SendActivationMail(toName, toAddr string) {
 
 func makeMessage(tmpl, toName string, a ...interface{}) (string, error) {
 
-	var imgBase64 = ""
+	var imgBase64 string
 
-	img, err := ioutil.ReadFile("./www/images/logoicon.png")
+	img, err := ioutil.ReadFile("./www/images/auth-32x32.png")
 	if err == nil {
 		imgBase64 = base64.StdEncoding.EncodeToString([]byte(img))
 	}
