@@ -82,7 +82,7 @@ func ReadSettings() {
 	}
 
 	// Database settings
-	a = os.Getenv("DbConnection")
+	a = os.Getenv("DATABASE_URL")
 	if a != "" {
 		AppSettings.Database.DbConnection = a
 	}
