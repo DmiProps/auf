@@ -15,13 +15,13 @@ func SendActivationMail(toName, toAddr string) {
 
 	// Create the authentication for the SendMail()
 	// using PlainText, but other authentication methods are encouraged
-	auth := smtp.PlainAuth("", settings.AppSettings.NoreplyEmail, settings.AppSettings.NoreplyPassword, settings.AppSettings.MailHost)
+	auth := smtp.PlainAuth("", settings.AppSettings.Email.NoreplyEmail, settings.AppSettings.Email.NoreplyPassword, settings.AppSettings.Email.MailHost)
 
 	// NOTE: Using the backtick here ` works like a heredoc, which is why all the
 	// rest of the lines are forced to the beginning of the line, otherwise the
 	// formatting is wrong for the RFC 822 style
-	addr := settings.AppSettings.MailHost + ":" + settings.AppSettings.SMTPPort
-	from := settings.AppSettings.NoreplyEmail
+	addr := settings.AppSettings.Email.MailHost + ":" + settings.AppSettings.Email.SMTPPort
+	from := settings.AppSettings.Email.NoreplyEmail
 	msg, err := makeMessage("activation-mail", toName, toAddr, from)
 	if err != nil {
 		log.Fatalln("Error makeMessage: ", err)

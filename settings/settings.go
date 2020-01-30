@@ -6,19 +6,24 @@ import (
 	"os"
 )
 
-// Settings with params fo rauth framework
-type Settings struct {
-	// Main settings
-	Host string
-
-	// E-mail settings
+// EmailSettings with params for e-mail communications
+type EmailSettings struct {
 	MailHost        string
 	SMTPPort        string
 	NoreplyEmail    string
 	NoreplyPassword string
+}
 
-	// Database settings
+// DatabaseSettings with params for database connection
+type DatabaseSettings struct {
 	DbConnection string
+}
+
+// Settings with params for auth framework
+type Settings struct {
+	Host     string
+	Email    EmailSettings
+	Database DatabaseSettings
 }
 
 var (
@@ -56,25 +61,25 @@ func ReadSettings() {
 	// E-mail settings
 	a = os.Getenv("MailHost")
 	if a != "" {
-		AppSettings.MailHost = a
+		AppSettings.Email.MailHost = a
 	}
 	a = os.Getenv("SMTPPort")
 	if a != "" {
-		AppSettings.SMTPPort = a
+		AppSettings.Email.SMTPPort = a
 	}
 	a = os.Getenv("NoreplyEmail")
 	if a != "" {
-		AppSettings.NoreplyEmail = a
+		AppSettings.Email.NoreplyEmail = a
 	}
 	a = os.Getenv("NoreplyPassword")
 	if a != "" {
-		AppSettings.NoreplyPassword = a
+		AppSettings.Email.NoreplyPassword = a
 	}
 
 	// Database settings
 	a = os.Getenv("DbConnection")
 	if a != "" {
-		AppSettings.DbConnection = a
+		AppSettings.Database.DbConnection = a
 	}
 
 }

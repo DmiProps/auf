@@ -2,7 +2,9 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 
@@ -39,18 +41,114 @@ import (
 // >SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema','pg_catalog');
 //---------------------------------------------------------------------------------
 
-// GetConnect return connection to database
-func GetConnect() {
+// Connect make connect to database
+func Connect() {
 
 	// Get connection
-	conn, err := pgx.Connect(context.Background(), settings.AppSettings.DbConnection)
+	conn, err := pgx.Connect(context.Background(), settings.AppSettings.Database.DbConnection)
 	if err != nil {
 		log.Fatalln("Error GetConnect(): ", err)
 		return
 	}
-	defer conn.Close(context.Background())
+	settings.DbConnect = conn
 
 	// Check tables
-	//TO-DO
+	dbVersion, err := getVersion(settings.DbConnect)
+	if err != nil {
+		log.Fatalln("Error getVersion(): ", err)
+		return
+	}
+
+	// Create or update database schema
+	for dbVersion != settings.DbSchemaVersion {
+		switch dbVersion {
+		case "":
+			err = createActualSchema(settings.DbConnect)
+			dbVersion = "0.1"
+		case "0.1":
+			err = updateFrom01To02(settings.DbConnect)
+			dbVersion = "0.2"
+		}
+		if err != nil {
+			log.Fatalln("Error updateFrom01To02(): ", err)
+		}
+	}
+
+}
+
+func createActualSchema(conn *pgx.Conn) error {
+
+	// Create table 'version'
+	_, err := conn.Exec(
+		context.Background(),
+		`create table version (
+			schema_version	varchar(24),	-- db schema vertion,
+			schema_date		date			-- db schema date of creation
+		)`)
+	if err != nil {
+		return err
+	}
+
+	dbSchemaDate, _ := time.Parse(settings.ShortDateForm, settings.DbSchemaDate)
+
+	_, err = conn.Exec(
+		context.Background(),
+		`insert into version(schema_version, schema_date) values ($1, $2)`,
+		settings.DbSchemaVersion,
+		dbSchemaDate)
+	if err != nil {
+		return err
+	}
+
+	// Create table 'accounts'
+
+	return nil
+
+}
+
+func getVersion(conn *pgx.Conn) (string, error) {
+
+	dbVersion := "" // version database schema
+
+	rows, err := conn.Query(
+		context.Background(),
+		`select
+			table_name
+		from
+			information_schema.tables
+		where
+			table_schema not in ('information_schema','pg_catalog')
+			and
+			table_name = 'version'`)
+	if err != nil {
+		return "", err
+	}
+
+	tableIsPresent := rows.Next()
+
+	rows.Close()
+
+	for !tableIsPresent {
+		return "", nil
+	}
+
+	rows, err = conn.Query(
+		context.Background(),
+		`select
+			schema_version
+		from
+			version`)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		rows.Scan(&dbVersion)
+	}
+
+	fmt.Println("Version: " + dbVersion)
+
+	return dbVersion, nil
 
 }

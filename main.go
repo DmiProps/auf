@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"context"
 	"net/http"
 	"os"
 
@@ -16,7 +16,8 @@ func main() {
 
 	settings.ReadSettings()
 
-	database.GetConnect()
+	database.Connect()
+	defer settings.DbConnect.Close(context.Background())
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.Index)
@@ -42,6 +43,6 @@ func main() {
 		port = "8080"
 	}
 
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	http.ListenAndServe(":"+port, nil)
 
 }
