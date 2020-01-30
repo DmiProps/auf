@@ -22,6 +22,7 @@ type DatabaseSettings struct {
 // Settings with params for auth framework
 type Settings struct {
 	Host     string
+	Port     string
 	Email    EmailSettings
 	Database DatabaseSettings
 }
@@ -56,6 +57,10 @@ func ReadSettings() {
 	a := os.Getenv("Host")
 	if a != "" {
 		AppSettings.Host = a
+	}
+	a = os.Getenv("Port")
+	if a != "" {
+		AppSettings.Port = a
 	}
 
 	// E-mail settings

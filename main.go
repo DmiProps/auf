@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 
@@ -18,6 +17,14 @@ func main() {
 
 	database.Connect()
 	defer settings.DbConnect.Close(context.Background())
+
+	addHTTPRouter()
+
+	http.ListenAndServe(":"+settings.AppSettings.Port, nil)
+
+}
+
+func addHTTPRouter() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.Index)
@@ -37,12 +44,5 @@ func main() {
 			http.FileServer(http.Dir("./www/images"))))
 
 	http.Handle("/", r)
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	http.ListenAndServe(":"+port, nil)
 
 }
