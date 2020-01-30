@@ -2,9 +2,7 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"time"
 
 	"github.com/jackc/pgx/v4"
 
@@ -52,7 +50,7 @@ func Connect() {
 	}
 	settings.DbConnect = conn
 
-	// Check tables
+	// Get database schema version
 	dbVersion, err := getVersion(settings.DbConnect)
 	if err != nil {
 		log.Fatalln("Error getVersion(): ", err)
@@ -64,45 +62,23 @@ func Connect() {
 		switch dbVersion {
 		case "":
 			err = createActualSchema(settings.DbConnect)
-			dbVersion = "0.1"
+			if err != nil {
+				log.Fatalln("Error createActualSchema(): ", err)
+			} else {
+				dbVersion = settings.DbSchemaVersion
+			}
 		case "0.1":
 			err = updateFrom01To02(settings.DbConnect)
-			dbVersion = "0.2"
+			if err != nil {
+				log.Fatalln("Error updateFrom01To02(): ", err)
+			} else {
+				dbVersion = "0.2"
+			}
 		}
 		if err != nil {
-			log.Fatalln("Error updateFrom01To02(): ", err)
+			break
 		}
 	}
-
-}
-
-func createActualSchema(conn *pgx.Conn) error {
-
-	// Create table 'version'
-	_, err := conn.Exec(
-		context.Background(),
-		`create table version (
-			schema_version	varchar(24),	-- db schema vertion,
-			schema_date		date			-- db schema date of creation
-		)`)
-	if err != nil {
-		return err
-	}
-
-	dbSchemaDate, _ := time.Parse(settings.ShortDateForm, settings.DbSchemaDate)
-
-	_, err = conn.Exec(
-		context.Background(),
-		`insert into version(schema_version, schema_date) values ($1, $2)`,
-		settings.DbSchemaVersion,
-		dbSchemaDate)
-	if err != nil {
-		return err
-	}
-
-	// Create table 'accounts'
-
-	return nil
 
 }
 
@@ -110,34 +86,23 @@ func getVersion(conn *pgx.Conn) (string, error) {
 
 	dbVersion := "" // version database schema
 
-	rows, err := conn.Query(
+	// Create table 'version' if not exists
+	_, err := conn.Exec(
 		context.Background(),
-		`select
-			table_name
-		from
-			information_schema.tables
-		where
-			table_schema not in ('information_schema','pg_catalog')
-			and
-			table_name = 'version'`)
+		`create table if not exists version (
+			id				integer,		-- always equal to 0
+			schema_version	varchar(24),	-- db schema vertion,
+			schema_date		date,			-- db schema date of creation
+			primary key (id)
+		)`)
 	if err != nil {
 		return "", err
 	}
 
-	tableIsPresent := rows.Next()
-
-	rows.Close()
-
-	for !tableIsPresent {
-		return "", nil
-	}
-
-	rows, err = conn.Query(
+	// Get dabatase schema version
+	rows, err := conn.Query(
 		context.Background(),
-		`select
-			schema_version
-		from
-			version`)
+		`select schema_version from version`)
 	if err != nil {
 		return "", err
 	}
@@ -146,8 +111,6 @@ func getVersion(conn *pgx.Conn) (string, error) {
 	if rows.Next() {
 		rows.Scan(&dbVersion)
 	}
-
-	fmt.Println("Version: " + dbVersion)
 
 	return dbVersion, nil
 
