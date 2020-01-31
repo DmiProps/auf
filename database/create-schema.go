@@ -30,12 +30,24 @@ func createActualSchema(conn *pgx.Conn) error {
 			id				serial primary key,		-- account id
 			username		varchar(100) not null,	-- user name
 			email			varchar(100) not null,	-- e-mail
-			password_hash	varchar(30),			-- password hash
-			phone			varchar(30),			-- phone number
-			email_congirmed	boolean not null,		-- email confirmation flag
-			phone_congirmed	boolean not null,		-- phone confirmation flag
-			creation_date	timestamp				-- creation date of account
+			password_hash	varchar(80) not null,	-- password hash
+			phone			varchar(30) not null default '', -- phone number
+			email_congirmed	boolean not null default false, -- email confirmation flag
+			phone_congirmed	boolean not null default false, -- phone confirmation flag
+			creation_date	timestamp				-- creation date of account 
 		)`)
+	if err != nil {
+		return err
+	}
+	_, err = conn.Exec(
+		context.Background(),
+		`create index idx_accounts_username on accounts (lower (username))`)
+	if err != nil {
+		return err
+	}
+	_, err = conn.Exec(
+		context.Background(),
+		`create index idx_accounts_email on accounts (lower (email))`)
 	if err != nil {
 		return err
 	}

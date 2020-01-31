@@ -58,7 +58,7 @@ func ReadSettings() {
 	if a != "" {
 		AppSettings.Host = a
 	}
-	a = os.Getenv("PORT")
+	a = os.Getenv("Port")
 	if a != "" {
 		AppSettings.Port = a
 	}

@@ -21,3 +21,12 @@ input.fault {
     border-color: red;
     background-color: lightpink;
 }
+
+.error-hint {
+    color: red;
+    font-size: 9pt;
+    margin: 0;
+    margin-top: -16px;
+    min-height: 19px;
+    /*visibility: hidden;*/
+}
