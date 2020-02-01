@@ -22,6 +22,12 @@ input.fault {
     background-color: lightpink;
 }
 
+a.busy {
+    background-color: lightgray;
+    border-color: lightgray;
+    pointer-events: none;
+}
+
 .error-hint {
     color: red;
     font-size: 9pt;
