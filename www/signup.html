@@ -47,13 +47,13 @@
           <p style="text-align: center;"><a href="/"><img src="images/auth-64x64.png" style="width: 60px; text-align: center;"></a></p>
           <p style="font-family: Poiret One; text-align: center; font-weight: bold;">AUTH FRAMEWORK</p>
           <input class="u-full-width" style="height: 50px;" type="text" placeholder="Username" id="userInput" oninput="resetFault(this)">
-          <p class="error-hint" id="userMsg"></p>
+          <p class="error-hint" id="userMsg" hidden=true>Error user</p>
           <input class="u-full-width" style="height: 50px;" type="password" placeholder="Password" id="passInput" oninput="resetFault(this)">
-          <p class="error-hint" id="passMsg"></p>
+          <p class="error-hint" id="passMsg" hidden=true>Error password</p>
           <input class="u-full-width" style="height: 50px;" type="email" placeholder="E-mail address" id="emailInput" oninput="resetFault(this)">
-          <p class="error-hint" id="emailMsg"></p>
+          <p class="error-hint" id="emailMsg" hidden=true>Error e-mail</p>
           <input class="u-full-width" style="height: 50px;" type="tel" placeholder="Phone number (optional)" id="phoneInput">
-          <p class="error-hint" id="phoneMsg"></p>
+          <p class="error-hint" id="phoneMsg" hidden=true>Error phone number</p>
           <p style="text-align: center;"><a class="button button-primary u-full-width" onclick="signUp()">Sign Up</a></p>
           <p style="text-align: center; color: lightgrey;">Have an account? <a href="/www/signin.html">Sign In</a></p>
         </form>

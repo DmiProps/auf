@@ -31,12 +31,14 @@ func validateAccount(data *types.SignUpData) (map[string]string, error) {
 
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
-		`select 1 as check_type, email_confirmed, phone_confirmed from account where lower(username) = lower($1)
+		`select 1 as check_type, email_confirmed, phone_confirmed from accounts where lower(username) = lower($1)
 		union
-		select 2, email_confirmed, phone_confirmed from account where lower(email) = lower($2)
+		select 2, email_confirmed, phone_confirmed from accounts where lower(email) = lower($2)
 		union
-		select 3, email_confirmed, phone_confirmed from account where lower(phone) = lower($3) and phone <> ''`,
-		data.User)
+		select 3, email_confirmed, phone_confirmed from accounts where lower(phone) = lower($3) and phone <> ''`,
+		data.User,
+		data.Email,
+		data.Phone)
 	if err != nil {
 		return nil, err
 	}

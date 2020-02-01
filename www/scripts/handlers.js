@@ -35,7 +35,13 @@ function signUp() {
   }
 
   axios.post('/signup', data)
-  .then(response => {})
+  .then(response => {
+    if (response.data.ok == true) {
+      window.location = '/signin.html';
+    } else {
+      document.getElementById('userMsg').hidden = false;
+    }
+  })
   .catch(error => console.log(error));
   
 }
