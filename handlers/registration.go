@@ -11,10 +11,10 @@ import (
 )
 
 type responseData struct {
-	Ok       bool   `json:"ok`
-	UserMsg  string `json:"userMsg`
-	EmailMsg string `json:"emailMsg`
-	PhoneMsg string `json:"phoneMsg`
+	Ok       bool
+	UserMsg  string
+	EmailMsg string
+	PhoneMsg string
 }
 
 // Signup is handler for signup page

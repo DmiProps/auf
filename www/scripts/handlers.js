@@ -36,10 +36,18 @@ function signUp() {
 
   axios.post('/signup', data)
   .then(response => {
-    if (response.data.ok == true) {
-      window.location = '/signin.html';
+    if (response.data.Ok == true) {
+      window.location = '/www/signin.html';
     } else {
-      document.getElementById('userMsg').hidden = false;
+      el = document.getElementById('userMsg');
+      el.innerText = response.data.UserMsg;
+      el.hidden = (response.data.UserMsg == '');
+      el = document.getElementById('emailMsg');
+      el.innerText = response.data.EmailMsg;
+      el.hidden = (response.data.EmailMsg == '');
+      el = document.getElementById('phoneMsg');
+      el.innerText = response.data.PhoneMsg;
+      el.hidden = (response.data.PhoneMsg == '');
     }
   })
   .catch(error => console.log(error));
