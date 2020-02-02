@@ -31,11 +31,11 @@ func validateAccount(data *types.SignUpData) (map[string]string, error) {
 
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
-		`select 1 as check_type, email_confirmed, phone_confirmed from accounts where lower(username) = lower($1)
-		union
-		select 2, email_confirmed, phone_confirmed from accounts where lower(email) = lower($2)
-		union
-		select 3, email_confirmed, phone_confirmed from accounts where lower(phone) = lower($3) and phone <> ''`,
+		`select 1 as check_type from accounts where lower(username) = lower($1)
+		union all
+		select 2 as check_type from accounts where lower(email) = lower($2)
+		union all
+		select 3 as check_type from accounts where phone <> '' and lower(phone) = lower($3)`,
 		data.User,
 		data.Email,
 		data.Phone)
@@ -45,28 +45,15 @@ func validateAccount(data *types.SignUpData) (map[string]string, error) {
 	defer rows.Close()
 
 	var checkType int
-	var emailConfirmed, phoneConfirmed bool
 	for rows.Next() {
-		rows.Scan(&checkType, &emailConfirmed, &phoneConfirmed)
+		rows.Scan(&checkType)
 		switch checkType {
 		case 1:
-			if emailConfirmed || phoneConfirmed {
-				msg["user"] = "A user with this name already exists"
-			} else {
-				msg["user"] = "*Click* to resend the activation email"
-			}
+			msg["user"] = "Username cannot be used. Please choose another username."
 		case 2:
-			if emailConfirmed {
-				msg["email"] = "A user with this email already exists"
-			} else {
-				msg["email"] = "*Click* to resend the activation email"
-			}
+			msg["email"] = "A user is already registered with this e-mail address."
 		case 3:
-			if phoneConfirmed {
-				msg["phone"] = "A user with this phone number already exists"
-			} else {
-				msg["phone"] = "*Click* to resend the activation code"
-			}
+			msg["phone"] = "A user is already registered with this phone number."
 		}
 	}
 
