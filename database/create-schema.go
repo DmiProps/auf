@@ -58,7 +58,7 @@ func createActualSchema(conn *pgx.Conn) error {
 		context.Background(),
 		`create table if not exists email_confirmations (
 			account_id		integer references accounts(id) on delete cascade, -- reference to account id
-			ref				uuid,					-- fragment of the email confirmation ref
+			ref				varchar(36) not null default '', -- fragment of the email confirmation ref
 			actual_date		timestamp,				-- date when the link expires
 			primary key (account_id)
 		)`)

@@ -8,10 +8,11 @@ import (
 	"strings"
 
 	"github.com/DmiProps/auf/settings"
+	"github.com/DmiProps/auf/types"
 )
 
 // SendActivationMail sends activation e-mail with ref
-func SendActivationMail(toName, toAddr string) {
+func SendActivationMail(data *types.SignUpData) {
 
 	// Create the authentication for the SendMail()
 	// using PlainText, but other authentication methods are encouraged
@@ -22,13 +23,13 @@ func SendActivationMail(toName, toAddr string) {
 	// formatting is wrong for the RFC 822 style
 	addr := settings.AppSettings.Email.MailHost + ":" + settings.AppSettings.Email.SMTPPort
 	from := settings.AppSettings.Email.NoreplyEmail
-	msg, err := makeMessage("activation-mail", toName, toAddr, from)
+	msg, err := makeMessage("activation-mail", data.User, data.ActivationRef, data.Email, from)
 	if err != nil {
 		log.Fatalln("Error makeMessage: ", err)
 		return
 	}
 
-	if err := smtp.SendMail(addr, auth, from, []string{toAddr}, []byte(msg)); err != nil {
+	if err := smtp.SendMail(addr, auth, from, []string{data.Email}, []byte(msg)); err != nil {
 		log.Fatalln("Error SendActivationMail: ", err)
 	} else {
 		fmt.Println("Email Sent!")
@@ -36,7 +37,7 @@ func SendActivationMail(toName, toAddr string) {
 
 }
 
-func makeMessage(tmpl, toName string, a ...interface{}) (string, error) {
+func makeMessage(tmpl, toName string, activationRef string, a ...interface{}) (string, error) {
 
 	wrap, err := ioutil.ReadFile("./templates/" + tmpl + ".wrap")
 	if err != nil {
@@ -47,8 +48,9 @@ func makeMessage(tmpl, toName string, a ...interface{}) (string, error) {
 		return "", err
 	}
 
-	htmlString := strings.Replace(string(html), "{User}", toName, -1)
-	htmlString = strings.Replace(htmlString, "{Host}", settings.AppSettings.Host, -1)
+	htmlString := strings.ReplaceAll(string(html), "{User}", toName)
+	htmlString = strings.ReplaceAll(htmlString, "{ActivationRef}", activationRef)
+	htmlString = strings.ReplaceAll(htmlString, "{Host}", settings.AppSettings.Host)
 
 	msg := fmt.Sprintf(string(wrap), a...)
 

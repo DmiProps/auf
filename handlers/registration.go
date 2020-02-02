@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/DmiProps/auf/communications"
 	"github.com/DmiProps/auf/database"
@@ -16,20 +15,6 @@ type responseData struct {
 	UserMsg  string
 	EmailMsg string
 	PhoneMsg string
-}
-
-func getDigits(in string) string {
-
-	var digits string = "0123456789"
-	var result string
-	for _, ch := range in {
-		if strings.ContainsRune(digits, ch) {
-			result += string(ch)
-		}
-	}
-
-	return result
-
 }
 
 // Signup is handler for signup page
@@ -44,11 +29,6 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 
-	// Get phone digits
-	if data.Phone != "" {
-		data.PhoneDigits = getDigits(data.Phone)
-	}
-
 	// Validate and create account
 	msg, err := database.AddAccount(&data)
 	if err != nil {
@@ -57,7 +37,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		response := responseData{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
 		json.NewEncoder(w).Encode(response)
 	} else {
-		communications.SendActivationMail(data.User, data.Email)
+		communications.SendActivationMail(&data)
 		response := responseData{Ok: true}
 		json.NewEncoder(w).Encode(response)
 	}

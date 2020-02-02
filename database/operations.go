@@ -2,10 +2,13 @@ package database
 
 import (
 	"context"
-	"fmt"
+	"strings"
+	"time"
 
 	"github.com/DmiProps/auf/settings"
 	"github.com/DmiProps/auf/types"
+
+	"github.com/beevik/guid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -61,8 +64,33 @@ func validateAccount(data *types.SignUpData) (map[string]string, error) {
 
 }
 
+func getDigits(in string) string {
+
+	var digits string = "0123456789"
+	var result string
+	for _, ch := range in {
+		if strings.ContainsRune(digits, ch) {
+			result += string(ch)
+		}
+	}
+
+	return result
+
+}
+
+func getActivationRef() string {
+
+	var guid *guid.Guid = guid.New()
+
+	return guid.String()
+
+}
+
 // AddAccount validate account data and add new account
 func AddAccount(data *types.SignUpData) (map[string]string, error) {
+
+	// Get phone digits
+	data.PhoneDigits = getDigits(data.Phone)
 
 	// Validate account
 	msg, err := validateAccount(data)
@@ -79,6 +107,9 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 		return nil, err
 	}
 
+	// Get activation ref
+	data.ActivationRef = getActivationRef()
+
 	// Add account
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
@@ -92,15 +123,25 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	//TO-DO: create ref and code
-
+	// Get account id
 	id := 0
 	if rows.Next() {
 		rows.Scan(&id)
-		fmt.Println("Account Id: ", id)
 	}
+	rows.Close()
+
+	// Add confirmation email ref
+	rows, err = settings.DbConnect.Query(
+		context.Background(),
+		`insert into email_confirmations(account_id, ref, actual_date) values ($1, $2, $3)`,
+		id,
+		data.ActivationRef,
+		time.Now())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
 	return nil, nil
 
