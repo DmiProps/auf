@@ -35,10 +35,10 @@ func validateAccount(data *types.SignUpData) (map[string]string, error) {
 		union all
 		select 2 as check_type from accounts where lower(email) = lower($2)
 		union all
-		select 3 as check_type from accounts where phone <> '' and lower(phone) = lower($3)`,
+		select 3 as check_type from accounts where phone_digits <> '' and phone_digits = $3`,
 		data.User,
 		data.Email,
-		data.Phone)
+		data.PhoneDigits)
 	if err != nil {
 		return nil, err
 	}
@@ -82,12 +82,13 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 	// Add account
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
-		`insert into accounts(username, email, password_hash, phone, creation_date) values ($1, $2, $3, $4, now())
+		`insert into accounts(username, email, password_hash, phone, phone_digits, creation_date) values ($1, $2, $3, $4, $5, now())
 		returning id`,
 		data.User,
 		data.Email,
 		hashPass,
-		data.Phone)
+		data.Phone,
+		data.PhoneDigits)
 	if err != nil {
 		return nil, err
 	}

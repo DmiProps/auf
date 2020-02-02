@@ -32,6 +32,7 @@ func createActualSchema(conn *pgx.Conn) error {
 			email			varchar(100) not null,	-- e-mail
 			password_hash	varchar(80) not null,	-- password hash
 			phone			varchar(30) not null default '', -- phone number
+			phone_digits	varchar(30) not null default '', -- only digits of phone number
 			email_confirmed	boolean not null default false, -- email confirmation flag
 			phone_confirmed	boolean not null default false, -- phone confirmation flag
 			creation_date	timestamp				-- creation date of account 
