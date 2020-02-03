@@ -132,12 +132,21 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 	rows.Close()
 
 	// Add confirmation email ref
-	rows, err = settings.DbConnect.Query(
-		context.Background(),
-		`insert into email_confirmations(account_id, ref, actual_date) values ($1, $2, $3)`,
-		id,
-		data.ActivationRef,
-		time.Now())
+	if settings.AppSettings.Signup.ActualRefHours == 0 {
+		rows, err = settings.DbConnect.Query(
+			context.Background(),
+			`insert into email_confirmations(account_id, ref) values ($1, $2)`,
+			id,
+			data.ActivationRef)
+	} else {
+		actualDate := time.Now().Add(time.Hour * time.Duration(settings.AppSettings.Signup.ActualRefHours))
+		rows, err = settings.DbConnect.Query(
+			context.Background(),
+			`insert into email_confirmations(account_id, ref, actual_date) values ($1, $2, $3)`,
+			id,
+			data.ActivationRef,
+			actualDate)
+	}
 	if err != nil {
 		return nil, err
 	}
