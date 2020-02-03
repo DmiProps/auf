@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"strconv"
 )
 
 // EmailSettings with params for e-mail communications
@@ -19,12 +20,22 @@ type DatabaseSettings struct {
 	DbConnection string
 }
 
+// SignupSettings with params for activation ref and code
+type SignupSettings struct {
+	ActualRefHours          int
+	ResendTimeRefMins       int
+	LenPhoneCode            int
+	ActualPhoneCodeSecs     int
+	ResendTimePhoneCodeSecs int
+}
+
 // Settings with params for auth framework
 type Settings struct {
 	Host     string
 	Port     string
 	Email    EmailSettings
 	Database DatabaseSettings
+	Signup   SignupSettings
 }
 
 var (
@@ -85,6 +96,38 @@ func ReadSettings() {
 	a = os.Getenv("DATABASE_URL")
 	if a != "" {
 		AppSettings.Database.DbConnection = a
+	}
+
+	// Signup settings
+	a = os.Getenv("ActualRefHours")
+	if a != "" {
+		if b, err := strconv.Atoi(a); err == nil {
+			AppSettings.Signup.ActualRefHours = b
+		}
+	}
+	a = os.Getenv("ResendTimeRefMins")
+	if a != "" {
+		if b, err := strconv.Atoi(a); err == nil {
+			AppSettings.Signup.ResendTimeRefMins = b
+		}
+	}
+	a = os.Getenv("LenPhoneCode")
+	if a != "" {
+		if b, err := strconv.Atoi(a); err == nil {
+			AppSettings.Signup.LenPhoneCode = b
+		}
+	}
+	a = os.Getenv("ActualPhoneCodeSecs")
+	if a != "" {
+		if b, err := strconv.Atoi(a); err == nil {
+			AppSettings.Signup.ActualPhoneCodeSecs = b
+		}
+	}
+	a = os.Getenv("ResendTimePhoneCodeSecs")
+	if a != "" {
+		if b, err := strconv.Atoi(a); err == nil {
+			AppSettings.Signup.ResendTimePhoneCodeSecs = b
+		}
 	}
 
 }

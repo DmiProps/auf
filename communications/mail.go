@@ -31,8 +31,6 @@ func SendActivationMail(data *types.SignUpData) {
 
 	if err := smtp.SendMail(addr, auth, from, []string{data.Email}, []byte(msg)); err != nil {
 		log.Fatalln("Error SendActivationMail: ", err)
-	} else {
-		fmt.Println("Email Sent!")
 	}
 
 }
