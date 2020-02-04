@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/DmiProps/auf/communications"
 	"github.com/DmiProps/auf/database"
 	"github.com/DmiProps/auf/types"
@@ -50,5 +52,15 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 // ActivateViaEmail try activate account via e-mail
 func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	err := database.ActivateAccountViaEmail(vars["id"])
+
+	if err == nil {
+		//TO-DO: go to signin page
+	} else {
+		//TO-DO: show error message and signup repeate
+	}
 
 }

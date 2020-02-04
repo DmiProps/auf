@@ -155,3 +155,11 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 	return nil, nil
 
 }
+
+// ActivateAccountViaEmail activate account via e-mail
+func ActivateAccountViaEmail(ref string) error {
+
+	//TO-DO: check activation ref, confirmation e-mail
+	return nil
+
+}
