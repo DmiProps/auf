@@ -3,7 +3,6 @@ package communications
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/smtp"
 	"strings"
 
@@ -12,7 +11,7 @@ import (
 )
 
 // SendActivationMail sends activation e-mail with ref
-func SendActivationMail(data *types.SignUpData) {
+func SendActivationMail(data *types.SignUpData) error {
 
 	// Create the authentication for the SendMail()
 	// using PlainText, but other authentication methods are encouraged
@@ -25,13 +24,14 @@ func SendActivationMail(data *types.SignUpData) {
 	from := settings.AppSettings.Email.NoreplyEmail
 	msg, err := makeMessage("activation-mail", data.User, data.ActivationRef, data.Email, from)
 	if err != nil {
-		log.Fatalln("Error makeMessage: ", err)
-		return
+		return fmt.Errorf("Error makeMessage: %s", err)
 	}
 
 	if err := smtp.SendMail(addr, auth, from, []string{data.Email}, []byte(msg)); err != nil {
-		log.Fatalln("Error SendActivationMail: ", err)
+		return fmt.Errorf("Error SendActivationMail: %s", err)
 	}
+
+	return nil
 
 }
 

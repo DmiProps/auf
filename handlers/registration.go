@@ -37,9 +37,18 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		response := responseData{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
 		json.NewEncoder(w).Encode(response)
 	} else {
-		communications.SendActivationMail(&data)
 		response := responseData{Ok: true}
+		if err = communications.SendActivationMail(&data); err != nil {
+			response.Ok = false
+			response.EmailMsg = "Failed to send activation e-mail."
+			log.Println(err)
+		}
 		json.NewEncoder(w).Encode(response)
 	}
+
+}
+
+// ActivateViaEmail try activate account via e-mail
+func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 
 }
