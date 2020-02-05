@@ -23,7 +23,6 @@ type DatabaseSettings struct {
 // SignupSettings with params for activation ref and code
 type SignupSettings struct {
 	ActualRefHours          int
-	ResendTimeRefMins       int
 	LenPhoneCode            int
 	ActualPhoneCodeSecs     int
 	ResendTimePhoneCodeSecs int
@@ -103,12 +102,6 @@ func ReadSettings() {
 	if a != "" {
 		if b, err := strconv.Atoi(a); err == nil {
 			AppSettings.Signup.ActualRefHours = b
-		}
-	}
-	a = os.Getenv("ResendTimeRefMins")
-	if a != "" {
-		if b, err := strconv.Atoi(a); err == nil {
-			AppSettings.Signup.ResendTimeRefMins = b
 		}
 	}
 	a = os.Getenv("LenPhoneCode")

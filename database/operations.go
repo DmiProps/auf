@@ -133,14 +133,14 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 
 	// Add confirmation email ref
 	if settings.AppSettings.Signup.ActualRefHours == 0 {
-		rows, err = settings.DbConnect.Query(
+		_, err = settings.DbConnect.Exec(
 			context.Background(),
 			`insert into email_confirmations(account_id, ref) values ($1, $2)`,
 			id,
 			data.ActivationRef)
 	} else {
 		actualDate := time.Now().Add(time.Hour * time.Duration(settings.AppSettings.Signup.ActualRefHours))
-		rows, err = settings.DbConnect.Query(
+		_, err = settings.DbConnect.Exec(
 			context.Background(),
 			`insert into email_confirmations(account_id, ref, actual_date) values ($1, $2, $3)`,
 			id,
@@ -150,16 +150,62 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	return nil, nil
 
 }
 
 // ActivateAccountViaEmail activate account via e-mail
-func ActivateAccountViaEmail(ref string) error {
+func ActivateAccountViaEmail(ref string) (map[string]string, error) {
 
-	//TO-DO: check activation ref, confirmation e-mail
-	return nil
+	msg := make(map[string]string)
+
+	rows, err := settings.DbConnect.Query(
+		context.Background(),
+		`select account_id, actual_date from email_confirmations where lower(ref) = lower($1)`,
+		ref)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		msg["email"] = "There is no activation ref."
+		return msg, nil
+	}
+
+	var accountID int
+	var actualDate time.Time
+
+	rows.Scan(&accountID, &actualDate)
+	if actualDate.IsZero() || actualDate.After(time.Now()) {
+		_, err = settings.DbConnect.Exec(
+			context.Background(),
+			`update accounts set email_confirmed = true where id = $1`,
+			accountID)
+		if err != nil {
+			return nil, err
+		}
+		_, err = settings.DbConnect.Exec(
+			context.Background(),
+			`delete from email_confirmations where account_id = $1`,
+			accountID)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+
+	// If the activation ref has expired, must enter account information again
+	_, err = settings.DbConnect.Exec(
+		context.Background(),
+		`delete from account where account_id = $1`,
+		accountID)
+	if err != nil {
+		return nil, err
+	}
+	msg["email"] = "The activation ref is no longer valid. Enter your account details again."
+
+	return msg, nil
 
 }

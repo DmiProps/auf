@@ -55,12 +55,16 @@ func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	err := database.ActivateAccountViaEmail(vars["id"])
+	msg, err := database.ActivateAccountViaEmail(vars["id"])
 
-	if err == nil {
-		//TO-DO: go to signin page
+	if err != nil {
+		log.Fatalln("Error ActivateAccountViaEmail(): ", err)
+	} else if msg != nil && len(msg) > 0 {
+		response := responseData{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
+		json.NewEncoder(w).Encode(response)
 	} else {
-		//TO-DO: show error message and signup repeate
+		response := responseData{Ok: true}
+		json.NewEncoder(w).Encode(response)
 	}
 
 }
