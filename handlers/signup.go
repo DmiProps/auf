@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"text/template"
 
 	"github.com/gorilla/mux"
 
@@ -63,8 +64,8 @@ func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 		response := responseData{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
 		json.NewEncoder(w).Encode(response)
 	} else {
-		response := responseData{Ok: true}
-		json.NewEncoder(w).Encode(response)
+		t, _ := template.ParseFiles("www/signin.html")
+		t.Execute(w, nil)
 	}
 
 }

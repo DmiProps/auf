@@ -167,9 +167,9 @@ func ActivateAccountViaEmail(ref string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	if !rows.Next() {
+		rows.Close()
 		msg["email"] = "There is no activation ref."
 		return msg, nil
 	}
@@ -178,6 +178,8 @@ func ActivateAccountViaEmail(ref string) (map[string]string, error) {
 	var actualDate time.Time
 
 	rows.Scan(&accountID, &actualDate)
+	rows.Close()
+
 	if actualDate.IsZero() || actualDate.After(time.Now()) {
 		_, err = settings.DbConnect.Exec(
 			context.Background(),
