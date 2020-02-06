@@ -93,7 +93,7 @@ function signUp() {
   }
 
   // 4. Send data to server
-  axios.post('/signup', data)
+  axios.post('signup', data)
   .then(response => {
 
     // 5. Unblocking elements

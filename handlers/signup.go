@@ -2,11 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"text/template"
-
-	"github.com/gorilla/mux"
 
 	"github.com/DmiProps/auf/communications"
 	"github.com/DmiProps/auf/database"
@@ -14,10 +13,18 @@ import (
 )
 
 type responseData struct {
-	Ok       bool
-	UserMsg  string
-	EmailMsg string
-	PhoneMsg string
+	Ok          bool
+	UserMsg     string
+	EmailMsg    string
+	PhoneMsg    string
+	ActivateMsg string
+}
+
+type activateResult struct {
+	SignInHidden    bool
+	SignUpHidden    bool
+	ResendRefHidden bool
+	Message         string
 }
 
 // Signup is handler for signup page
@@ -28,6 +35,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	r.Body.Close()
@@ -54,18 +62,33 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 // ActivateViaEmail try activate account via e-mail
 func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
+	accountID := r.FormValue("ref")
 
-	msg, err := database.ActivateAccountViaEmail(vars["id"])
+	response := activateResult{true, true, true, ""}
 
-	if err != nil {
-		log.Fatalln("Error ActivateAccountViaEmail(): ", err)
-	} else if msg != nil && len(msg) > 0 {
-		response := responseData{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
-		json.NewEncoder(w).Encode(response)
+	if accountID == "" {
+		response.Message = "To activate your account, follow the ref sent to the e-mail address specified when creating your account."
+		response.SignUpHidden = false
 	} else {
-		t, _ := template.ParseFiles("www/signin.html")
-		t.Execute(w, nil)
+
+		msg, usr, err := database.ActivateAccountViaEmail(accountID)
+		if err != nil {
+			log.Println("Error ActivateAccountViaEmail(): ", err)
+			response.Message = "An error occurred while activating your account. Please try again later."
+		} else if msg != "" && usr == "" {
+			response.Message = msg
+			response.SignUpHidden = false
+		} else if msg != "" && usr != "" {
+			response.Message = fmt.Sprintf("Dear %s, the activation ref has expired. You can resend the ref.", usr)
+			response.ResendRefHidden = false
+		} else {
+			response.Message = fmt.Sprintf("Dear %s, your account has been successfully activated!", usr)
+			response.SignInHidden = false
+		}
+
 	}
+
+	t, _ := template.ParseFiles("www/activate-ref.html")
+	t.Execute(w, response)
 
 }

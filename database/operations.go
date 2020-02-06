@@ -156,28 +156,28 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 }
 
 // ActivateAccountViaEmail activate account via e-mail
-func ActivateAccountViaEmail(ref string) (map[string]string, error) {
-
-	msg := make(map[string]string)
+func ActivateAccountViaEmail(ref string) (string, string, error) {
 
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
-		`select account_id, actual_date from email_confirmations where lower(ref) = lower($1)`,
+		`select account_id, actual_date, username from email_confirmations
+		inner join accounts on account_id = id
+		where lower(ref) = lower($1)`,
 		ref)
 	if err != nil {
-		return nil, err
+		return "", "", err // Try again
 	}
 
 	if !rows.Next() {
 		rows.Close()
-		msg["email"] = "There is no activation ref."
-		return msg, nil
+		return "There is no activation ref.", "", nil // Sign Up
 	}
 
 	var accountID int
 	var actualDate time.Time
+	var userName string
 
-	rows.Scan(&accountID, &actualDate)
+	rows.Scan(&accountID, &actualDate, &userName)
 	rows.Close()
 
 	if actualDate.IsZero() || actualDate.After(time.Now()) {
@@ -186,16 +186,16 @@ func ActivateAccountViaEmail(ref string) (map[string]string, error) {
 			`update accounts set email_confirmed = true where id = $1`,
 			accountID)
 		if err != nil {
-			return nil, err
+			return "", "", err // Try again
 		}
 		_, err = settings.DbConnect.Exec(
 			context.Background(),
 			`delete from email_confirmations where account_id = $1`,
 			accountID)
 		if err != nil {
-			return nil, err
+			return "", "", err // Try again
 		}
-		return nil, nil
+		return "", userName, nil // Sign In
 	}
 
 	// If the activation ref has expired, must enter account information again
@@ -204,10 +204,8 @@ func ActivateAccountViaEmail(ref string) (map[string]string, error) {
 		`delete from account where account_id = $1`,
 		accountID)
 	if err != nil {
-		return nil, err
+		return "", "", err // Try again
 	}
-	msg["email"] = "The activation ref is no longer valid. Enter your account details again."
-
-	return msg, nil
+	return "The activation ref is no longer valid. Enter your account details again.", "", nil // Resend
 
 }

@@ -51,7 +51,7 @@ func makeMessage(tmpl, toName string, activationRef string, a ...interface{}) (s
 	htmlString = strings.ReplaceAll(htmlString, "{Host}", settings.AppSettings.Host)
 
 	//TO-DO: delete test code
-	fmt.Println("http://localhost:8080/activation/" + activationRef)
+	fmt.Println("http://localhost:8080/www/activate-ref.html?ref=" + activationRef)
 
 	msg := fmt.Sprintf(string(wrap), a...)
 
