@@ -5,7 +5,7 @@
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
-  <title>Account Signin</title>
+  <title>Activate Account</title>
   <meta name="description" content="Auth Framework">
   <meta name="author" content="DmiProps">
 
@@ -41,19 +41,18 @@
         <form class="shadow" style="background-color: white; padding: 50px;">
           <p style="text-align: center;"><a href="/"><img src="images/auth-64x64.png" style="width: 60px; text-align: center;"></a></p>
           <p style="font-family: Poiret One; text-align: center; font-weight: bold;">AUTH FRAMEWORK</p>
-          <input class="u-full-width" style="height: 50px;" type="text" placeholder="Username or E-mail address or Phone number" id="userInput">
-          <input class="u-full-width" style="height: 50px;" type="password" placeholder="Password" id="passInput">
-          <p style="text-align: center;"><a class="button button-primary u-full-width" href="/">Sign In</a></p>
-
-          <div class="row">
-            <div class="one-half column">
-              <a href="/www/pass-reset.html">Forgot Password?</a>
-            </div>
-            <div class="one-half column" style="text-align: right;">
-              <a href="/www/signup.html">Sign Up</a>
-            </div>
+          <div class="message" id="infoMessage">
+            {Message}
           </div>
-
+          <div id="signIn">
+            <p style="text-align: center; color: lightgrey;">Go to <a href="/www/signin.html">Sign In</a> for login</p>
+          </div>
+          <div id="signUp">
+            <p style="text-align: center; color: lightgrey;">Go to <a href="/www/signup.html">Sign Up</a> for create account</p>
+          </div>
+          <div id="resendRef">
+            <p style="text-align: center;"><a class="button button-primary u-full-width" href="/">Resend activation ref</a></p>
+          </div>
         </form>
       </div>
       <div class="three columns"><p></p></div>

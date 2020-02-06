@@ -11,6 +11,16 @@ div.footer {
     width: 100%;
 }
 
+div.message {
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: lightyellow;
+    border: solid;
+    border-width: 1px;
+    border-color: gold;
+    border-radius: 8px;
+}
+
 .shadow {
     background: rgb(240, 240, 240);
     box-shadow: 0 0 10px rgba(150,150,150,0.5);
