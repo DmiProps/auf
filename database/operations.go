@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/DmiProps/auf/settings"
+	"github.com/DmiProps/auf/templates"
 	"github.com/DmiProps/auf/types"
 
 	"github.com/beevik/guid"
@@ -78,7 +79,7 @@ func getDigits(in string) string {
 
 }
 
-func getActivationRef() string {
+func getActivationLink() string {
 
 	var guid *guid.Guid = guid.New()
 
@@ -107,8 +108,8 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 		return nil, err
 	}
 
-	// Get activation ref
-	data.ActivationRef = getActivationRef()
+	// Get activation link
+	data.ActivationLink = getActivationLink()
 
 	// Add account
 	rows, err := settings.DbConnect.Query(
@@ -131,20 +132,20 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 	}
 	rows.Close()
 
-	// Add confirmation email ref
-	if settings.AppSettings.Signup.ActualRefHours == 0 {
+	// Add confirmation email link
+	if settings.AppSettings.Signup.ActualLinkHours == 0 {
 		_, err = settings.DbConnect.Exec(
 			context.Background(),
-			`insert into email_confirmations(account_id, ref) values ($1, $2)`,
+			`insert into email_confirmations(account_id, link) values ($1, $2)`,
 			id,
-			data.ActivationRef)
+			data.ActivationLink)
 	} else {
-		actualDate := time.Now().Add(time.Hour * time.Duration(settings.AppSettings.Signup.ActualRefHours))
+		actualDate := time.Now().Add(time.Hour * time.Duration(settings.AppSettings.Signup.ActualLinkHours))
 		_, err = settings.DbConnect.Exec(
 			context.Background(),
-			`insert into email_confirmations(account_id, ref, actual_date) values ($1, $2, $3)`,
+			`insert into email_confirmations(account_id, link, actual_date) values ($1, $2, $3)`,
 			id,
-			data.ActivationRef,
+			data.ActivationLink,
 			actualDate)
 	}
 	if err != nil {
@@ -156,21 +157,21 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 }
 
 // ActivateAccountViaEmail activate account via e-mail
-func ActivateAccountViaEmail(ref string) (string, string, error) {
+func ActivateAccountViaEmail(link string) (string, string, error) {
 
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
 		`select account_id, actual_date, username from email_confirmations
 		inner join accounts on account_id = id
-		where lower(ref) = lower($1)`,
-		ref)
+		where lower(link) = lower($1)`,
+		link)
 	if err != nil {
 		return "", "", err // Try again
 	}
 
 	if !rows.Next() {
 		rows.Close()
-		return "There is no activation ref.", "", nil // Sign Up
+		return templates.GetMessage(0), "", nil // Sign Up
 	}
 
 	var accountID int
@@ -198,7 +199,7 @@ func ActivateAccountViaEmail(ref string) (string, string, error) {
 		return "", userName, nil // Sign In
 	}
 
-	// If the activation ref has expired, must enter account information again
+	// If the activation link has expired, must enter account information again
 	_, err = settings.DbConnect.Exec(
 		context.Background(),
 		`delete from account where account_id = $1`,
@@ -206,6 +207,6 @@ func ActivateAccountViaEmail(ref string) (string, string, error) {
 	if err != nil {
 		return "", "", err // Try again
 	}
-	return "The activation ref is no longer valid. Enter your account details again.", "", nil // Resend
+	return templates.GetMessage(1), "", nil // Resend
 
 }

@@ -5,6 +5,6 @@ import (
 )
 
 func updateFrom01To02(conn *pgx.Conn) error {
-	//TO-DO
+	//TO-DO: Update database structure
 	return nil
 }

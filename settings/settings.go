@@ -20,9 +20,9 @@ type DatabaseSettings struct {
 	DbConnection string
 }
 
-// SignupSettings with params for activation ref and code
+// SignupSettings with params for activation link and code
 type SignupSettings struct {
-	ActualRefHours          int
+	ActualLinkHours         int
 	LenPhoneCode            int
 	ActualPhoneCodeSecs     int
 	ResendTimePhoneCodeSecs int
@@ -98,10 +98,10 @@ func ReadSettings() {
 	}
 
 	// Signup settings
-	a = os.Getenv("ActualRefHours")
+	a = os.Getenv("ActualLinkHours")
 	if a != "" {
 		if b, err := strconv.Atoi(a); err == nil {
-			AppSettings.Signup.ActualRefHours = b
+			AppSettings.Signup.ActualLinkHours = b
 		}
 	}
 	a = os.Getenv("LenPhoneCode")

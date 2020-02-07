@@ -10,7 +10,7 @@ import (
 	"github.com/DmiProps/auf/types"
 )
 
-// SendActivationMail sends activation e-mail with ref
+// SendActivationMail sends activation e-mail with link
 func SendActivationMail(data *types.SignUpData) error {
 
 	// Create the authentication for the SendMail()
@@ -22,7 +22,7 @@ func SendActivationMail(data *types.SignUpData) error {
 	// formatting is wrong for the RFC 822 style
 	addr := settings.AppSettings.Email.MailHost + ":" + settings.AppSettings.Email.SMTPPort
 	from := settings.AppSettings.Email.NoreplyEmail
-	msg, err := makeMessage("activation-mail", data.User, data.ActivationRef, data.Email, from)
+	msg, err := makeMessage("activation-mail", data.User, data.ActivationLink, data.Email, from)
 	if err != nil {
 		return fmt.Errorf("Error makeMessage: %s", err)
 	}
@@ -35,7 +35,7 @@ func SendActivationMail(data *types.SignUpData) error {
 
 }
 
-func makeMessage(tmpl, toName string, activationRef string, a ...interface{}) (string, error) {
+func makeMessage(tmpl, toName string, activationLink string, a ...interface{}) (string, error) {
 
 	wrap, err := ioutil.ReadFile("./templates/" + tmpl + ".wrap")
 	if err != nil {
@@ -47,11 +47,11 @@ func makeMessage(tmpl, toName string, activationRef string, a ...interface{}) (s
 	}
 
 	htmlString := strings.ReplaceAll(string(html), "{User}", toName)
-	htmlString = strings.ReplaceAll(htmlString, "{ActivationRef}", activationRef)
+	htmlString = strings.ReplaceAll(htmlString, "{ActivationLink}", activationLink)
 	htmlString = strings.ReplaceAll(htmlString, "{Host}", settings.AppSettings.Host)
 
-	//TO-DO: delete test code
-	fmt.Println("http://localhost:8080/www/activate-ref.html?ref=" + activationRef)
+	//TO-DO: Delete test message
+	fmt.Println("http://localhost:8080/www/activate-link.html?link=" + activationLink)
 
 	msg := fmt.Sprintf(string(wrap), a...)
 

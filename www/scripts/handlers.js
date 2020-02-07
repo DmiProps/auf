@@ -109,8 +109,8 @@ function signUp() {
 
     if (response.data.Ok == true) {
 
-      // 6. Go to signin
-      window.location = '/www/signin.html';
+      // 6. Go to activate-link
+      window.location = '/www/activate-link.html';
 
     } else {
 

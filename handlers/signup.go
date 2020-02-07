@@ -21,10 +21,10 @@ type responseData struct {
 }
 
 type activateResult struct {
-	SignInHidden    bool
-	SignUpHidden    bool
-	ResendRefHidden bool
-	Message         string
+	SignInHidden     bool
+	SignUpHidden     bool
+	ResendLinkHidden bool
+	Message          string
 }
 
 // Signup is handler for signup page
@@ -62,12 +62,12 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 // ActivateViaEmail try activate account via e-mail
 func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 
-	accountID := r.FormValue("ref")
+	accountID := r.FormValue("link")
 
 	response := activateResult{true, true, true, ""}
 
 	if accountID == "" {
-		response.Message = "To activate your account, follow the ref sent to the e-mail address specified when creating your account."
+		response.Message = "To activate your account, follow the link sent to the e-mail address specified when creating your account."
 		response.SignUpHidden = false
 	} else {
 
@@ -79,8 +79,8 @@ func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 			response.Message = msg
 			response.SignUpHidden = false
 		} else if msg != "" && usr != "" {
-			response.Message = fmt.Sprintf("Dear %s, the activation ref has expired. You can resend the ref.", usr)
-			response.ResendRefHidden = false
+			response.Message = fmt.Sprintf("Dear %s, the activation link has expired. You can resend the link.", usr)
+			response.ResendLinkHidden = false
 		} else {
 			response.Message = fmt.Sprintf("Dear %s, your account has been successfully activated!", usr)
 			response.SignInHidden = false
@@ -88,7 +88,7 @@ func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t, _ := template.ParseFiles("www/activate-ref.html")
+	t, _ := template.ParseFiles("www/activate-link.html")
 	t.Execute(w, response)
 
 }
