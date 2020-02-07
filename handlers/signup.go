@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"text/template"
 
 	"github.com/DmiProps/auf/communications"
 	"github.com/DmiProps/auf/database"
+	"github.com/DmiProps/auf/templates"
 	"github.com/DmiProps/auf/types"
 )
 
@@ -52,23 +52,13 @@ func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 	response := types.ActivateEmailResult{SignInHidden: true, SignUpHidden: true, ResendLinkHidden: true, Message: ""}
 
 	if accountID == "" {
-		response.Message = "To activate your account, follow the link sent to the e-mail address specified when creating your account."
+		response.Message = templates.GetMessage(4)
 		response.SignUpHidden = false
 	} else {
 
-		msg, usr, err := database.ActivateAccountViaEmail(accountID)
+		err := database.ActivateAccountViaEmail(accountID, &response)
 		if err != nil {
 			log.Println("Error ActivateAccountViaEmail(): ", err)
-			response.Message = "An error occurred while activating your account. Please try again later."
-		} else if msg != "" && usr == "" {
-			response.Message = msg
-			response.SignUpHidden = false
-		} else if msg != "" && usr != "" {
-			response.Message = fmt.Sprintf("Dear %s, the activation link has expired. You can resend the link.", usr)
-			response.ResendLinkHidden = false
-		} else {
-			response.Message = fmt.Sprintf("Dear %s, your account has been successfully activated!", usr)
-			response.SignInHidden = false
 		}
 
 	}

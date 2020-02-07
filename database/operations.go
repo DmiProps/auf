@@ -157,7 +157,7 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 }
 
 // ActivateAccountViaEmail activate account via e-mail
-func ActivateAccountViaEmail(link string) (string, string, error) {
+func ActivateAccountViaEmail(link string, result *types.ActivateEmailResult) error {
 
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
@@ -166,12 +166,15 @@ func ActivateAccountViaEmail(link string) (string, string, error) {
 		where lower(link) = lower($1)`,
 		link)
 	if err != nil {
-		return "", "", err // Try again
+		result.Message = templates.GetMessage(2)
+		return err // Try again
 	}
 
 	if !rows.Next() {
 		rows.Close()
-		return templates.GetMessage(0), "", nil // Sign Up
+		result.Message = templates.GetMessage(0)
+		result.SignUpHidden = false
+		return nil // Sign Up
 	}
 
 	var accountID int
@@ -187,16 +190,21 @@ func ActivateAccountViaEmail(link string) (string, string, error) {
 			`update accounts set email_confirmed = true where id = $1`,
 			accountID)
 		if err != nil {
-			return "", "", err // Try again
+			result.Message = templates.GetMessage(2)
+			return err // Try again
 		}
 		_, err = settings.DbConnect.Exec(
 			context.Background(),
 			`delete from email_confirmations where account_id = $1`,
 			accountID)
 		if err != nil {
-			return "", "", err // Try again
+			result.Message = templates.GetMessage(2)
+			return err // Try again
 		}
-		return "", userName, nil // Sign In
+
+		result.Message = templates.GetMessage(3, userName)
+		result.SignInHidden = false
+		return nil // Sign In
 	}
 
 	// If the activation link has expired, must enter account information again
@@ -205,8 +213,12 @@ func ActivateAccountViaEmail(link string) (string, string, error) {
 		`delete from account where account_id = $1`,
 		accountID)
 	if err != nil {
-		return "", "", err // Try again
+		result.Message = templates.GetMessage(2)
+		return err // Try again
 	}
-	return templates.GetMessage(1), "", nil // Resend
+
+	result.Message = templates.GetMessage(1, userName)
+	result.ResendLinkHidden = false
+	return nil // Resend
 
 }
