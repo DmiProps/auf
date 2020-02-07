@@ -64,7 +64,7 @@ func ReadSettings() {
 
 	// If the environment variables are set, then take the settings from them
 	// Main settings
-	a := os.Getenv("Host")
+	a := os.Getenv("HOST")
 	if a != "" {
 		AppSettings.Host = a
 	}
