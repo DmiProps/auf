@@ -12,21 +12,6 @@ import (
 	"github.com/DmiProps/auf/types"
 )
 
-type responseData struct {
-	Ok          bool
-	UserMsg     string
-	EmailMsg    string
-	PhoneMsg    string
-	ActivateMsg string
-}
-
-type activateResult struct {
-	SignInHidden     bool
-	SignUpHidden     bool
-	ResendLinkHidden bool
-	Message          string
-}
-
 // Signup is handler for signup page
 func Signup(w http.ResponseWriter, r *http.Request) {
 
@@ -45,10 +30,10 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalln("Error AddAccount(): ", err)
 	} else if msg != nil && len(msg) > 0 {
-		response := responseData{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
+		response := types.SignUpResult{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
 		json.NewEncoder(w).Encode(response)
 	} else {
-		response := responseData{Ok: true}
+		response := types.SignUpResult{Ok: true}
 		if err = communications.SendActivationMail(&data); err != nil {
 			response.Ok = false
 			response.EmailMsg = "Failed to send activation e-mail."
@@ -64,7 +49,7 @@ func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 
 	accountID := r.FormValue("link")
 
-	response := activateResult{true, true, true, ""}
+	response := types.ActivateEmailResult{SignInHidden: true, SignUpHidden: true, ResendLinkHidden: true, Message: ""}
 
 	if accountID == "" {
 		response.Message = "To activate your account, follow the link sent to the e-mail address specified when creating your account."

@@ -9,3 +9,20 @@ type SignUpData struct {
 	PhoneDigits    string
 	ActivationLink string
 }
+
+// SignUpResult contains result sending sign up data
+type SignUpResult struct {
+	Ok          bool
+	UserMsg     string
+	EmailMsg    string
+	PhoneMsg    string
+	ActivateMsg string
+}
+
+// ActivateEmailResult contains result activation account via e-mail link
+type ActivateEmailResult struct {
+	SignInHidden     bool
+	SignUpHidden     bool
+	ResendLinkHidden bool
+	Message          string
+}
