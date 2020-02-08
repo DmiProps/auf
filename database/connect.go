@@ -45,7 +45,7 @@ func Connect() {
 	// Get connection
 	conn, err := pgx.Connect(context.Background(), settings.AppSettings.Database.DbConnection)
 	if err != nil {
-		log.Fatalln("Error GetConnect(): ", err)
+		log.Println("Error GetConnect():", err)
 		return
 	}
 	settings.DbConnect = conn
@@ -53,7 +53,7 @@ func Connect() {
 	// Get database schema version
 	dbVersion, err := getVersion(settings.DbConnect)
 	if err != nil {
-		log.Fatalln("Error getVersion(): ", err)
+		log.Println("Error getVersion():", err)
 		return
 	}
 
@@ -63,14 +63,14 @@ func Connect() {
 		case "":
 			err = createActualSchema(settings.DbConnect)
 			if err != nil {
-				log.Fatalln("Error createActualSchema(): ", err)
+				log.Println("Error createActualSchema():", err)
 			} else {
 				dbVersion = settings.DbSchemaVersion
 			}
 		case "0.1":
 			err = updateFrom01To02(settings.DbConnect)
 			if err != nil {
-				log.Fatalln("Error updateFrom01To02(): ", err)
+				log.Println("Error updateFrom01To02():", err)
 			} else {
 				dbVersion = "0.2"
 			}

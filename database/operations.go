@@ -29,64 +29,6 @@ func CheckPasswordHash(password, hash string) bool {
 
 }
 
-func validateAccount(data *types.SignUpData) (map[string]string, error) {
-
-	msg := make(map[string]string)
-
-	rows, err := settings.DbConnect.Query(
-		context.Background(),
-		`select 1 as check_type from accounts where lower(username) = lower($1)
-		union all
-		select 2 as check_type from accounts where lower(email) = lower($2)
-		union all
-		select 3 as check_type from accounts where phone_digits <> '' and phone_digits = $3`,
-		data.User,
-		data.Email,
-		data.PhoneDigits)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var checkType int
-	for rows.Next() {
-		rows.Scan(&checkType)
-		switch checkType {
-		case 1:
-			msg["user"] = "Username cannot be used. Please choose another username."
-		case 2:
-			msg["email"] = "A user is already registered with this e-mail address."
-		case 3:
-			msg["phone"] = "A user is already registered with this phone number."
-		}
-	}
-
-	return msg, nil
-
-}
-
-func getDigits(in string) string {
-
-	var digits string = "0123456789"
-	var result string
-	for _, ch := range in {
-		if strings.ContainsRune(digits, ch) {
-			result += string(ch)
-		}
-	}
-
-	return result
-
-}
-
-func getActivationLink() string {
-
-	var guid *guid.Guid = guid.New()
-
-	return guid.String()
-
-}
-
 // AddAccount validate account data and add new account
 func AddAccount(data *types.SignUpData) (map[string]string, error) {
 
@@ -156,14 +98,60 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 
 }
 
+// UpdateActivationLink get user data and update activation link
+func UpdateActivationLink(data *types.SignUpData) (string, error) {
+
+	// Get account data
+	rows, err := settings.DbConnect.Query(
+		context.Background(),
+		`select id, username, email from accounts inner join email_confirmations on account_id = id where lower(link) = lower($1)`,
+		data.ActivationLink)
+	if err != nil {
+		return templates.GetMessage(5), err
+	}
+
+	if !rows.Next() {
+		rows.Close()
+		return templates.GetMessage(5), nil
+	}
+
+	var accountID int
+	rows.Scan(&accountID, &data.User, &data.Email)
+	rows.Close()
+
+	// Get activation link
+	data.ActivationLink = getActivationLink()
+
+	// Update activation link
+	if settings.AppSettings.Signup.ActualLinkHours == 0 {
+		_, err = settings.DbConnect.Exec(
+			context.Background(),
+			`update email_confirmations set link = $1, actual_date = null where account_id = $2`,
+			data.ActivationLink,
+			accountID)
+	} else {
+		actualDate := time.Now().Add(time.Hour * time.Duration(settings.AppSettings.Signup.ActualLinkHours))
+		_, err = settings.DbConnect.Exec(
+			context.Background(),
+			`update email_confirmations set link = $1, actual_date = $2 where account_id = $3`,
+			data.ActivationLink,
+			actualDate,
+			accountID)
+	}
+	if err != nil {
+		return templates.GetMessage(5), err
+	}
+
+	return "", nil
+
+}
+
 // ActivateAccountViaEmail activate account via e-mail
 func ActivateAccountViaEmail(link string, result *types.ActivateEmailResult) error {
 
 	rows, err := settings.DbConnect.Query(
 		context.Background(),
-		`select account_id, actual_date, username from email_confirmations
-		inner join accounts on account_id = id
-		where lower(link) = lower($1)`,
+		`select account_id, actual_date, username from email_confirmations inner join accounts on account_id = id where lower(link) = lower($1)`,
 		link)
 	if err != nil {
 		result.Message = templates.GetMessage(2)
@@ -178,13 +166,17 @@ func ActivateAccountViaEmail(link string, result *types.ActivateEmailResult) err
 	}
 
 	var accountID int
-	var actualDate time.Time
+	var actualDate *time.Time
 	var userName string
 
-	rows.Scan(&accountID, &actualDate, &userName)
+	err = rows.Scan(&accountID, &actualDate, &userName)
 	rows.Close()
+	if err != nil {
+		result.Message = templates.GetMessage(2)
+		return err
+	}
 
-	if actualDate.IsZero() || actualDate.After(time.Now()) {
+	if actualDate == nil || actualDate.IsZero() || actualDate.After(time.Now()) {
 		_, err = settings.DbConnect.Exec(
 			context.Background(),
 			`update accounts set email_confirmed = true where id = $1`,
@@ -220,5 +212,63 @@ func ActivateAccountViaEmail(link string, result *types.ActivateEmailResult) err
 	result.Message = templates.GetMessage(1, userName)
 	result.ResendLinkHidden = false
 	return nil // Resend
+
+}
+
+func validateAccount(data *types.SignUpData) (map[string]string, error) {
+
+	msg := make(map[string]string)
+
+	rows, err := settings.DbConnect.Query(
+		context.Background(),
+		`select 1 as check_type from accounts where lower(username) = lower($1)
+		union all
+		select 2 as check_type from accounts where lower(email) = lower($2)
+		union all
+		select 3 as check_type from accounts where phone_digits <> '' and phone_digits = $3`,
+		data.User,
+		data.Email,
+		data.PhoneDigits)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var checkType int
+	for rows.Next() {
+		rows.Scan(&checkType)
+		switch checkType {
+		case 1:
+			msg["user"] = "Username cannot be used. Please choose another username."
+		case 2:
+			msg["email"] = "A user is already registered with this e-mail address."
+		case 3:
+			msg["phone"] = "A user is already registered with this phone number."
+		}
+	}
+
+	return msg, nil
+
+}
+
+func getDigits(in string) string {
+
+	var digits string = "0123456789"
+	var result string
+	for _, ch := range in {
+		if strings.ContainsRune(digits, ch) {
+			result += string(ch)
+		}
+	}
+
+	return result
+
+}
+
+func getActivationLink() string {
+
+	var guid *guid.Guid = guid.New()
+
+	return guid.String()
 
 }

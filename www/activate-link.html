@@ -28,6 +28,11 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="icon" type="image/png" href="images/auth-32x32.png">
 
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="./scripts/handlers.js"></script>
+
 </head>
 <body style="background-color: rgb(240, 240, 240);">
 
@@ -51,7 +56,7 @@
             <p style="text-align: center; color: lightgrey;">Go to <a href="/www/signup.html">Sign Up</a> for create account</p>
           </div>
           <div {{if .ResendLinkHidden}}hidden{{end}}>
-            <p style="text-align: center;"><a class="button button-primary u-full-width" href="/resend">Resend activation link</a></p>
+            <p style="text-align: center;"><a class="button button-primary u-full-width" id="resendBtn" onclick="resendLink()">Resend activation link</a></p>
           </div>
         </form>
       </div>

@@ -20,7 +20,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error Signup():", err)
 		return
 	}
 	r.Body.Close()
@@ -28,7 +28,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	// Validate and create account
 	msg, err := database.AddAccount(&data)
 	if err != nil {
-		log.Fatalln("Error AddAccount(): ", err)
+		log.Println("Error AddAccount():", err)
 	} else if msg != nil && len(msg) > 0 {
 		response := types.SignUpResult{Ok: false, UserMsg: msg["user"], EmailMsg: msg["email"], PhoneMsg: msg["phone"]}
 		json.NewEncoder(w).Encode(response)
@@ -36,7 +36,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		response := types.SignUpResult{Ok: true}
 		if err = communications.SendActivationMail(&data); err != nil {
 			response.Ok = false
-			response.EmailMsg = "Failed to send activation e-mail."
+			response.EmailMsg = templates.GetMessage(6)
 			log.Println(err)
 		}
 		json.NewEncoder(w).Encode(response)
@@ -44,23 +44,43 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// ResendLink resend e-mail link for activation account
+func ResendLink(w http.ResponseWriter, r *http.Request) {
+
+	// Get new account data
+	data := types.SignUpData{ActivationLink: r.FormValue("link")}
+
+	// Send activation e-mail
+	msg, err := database.UpdateActivationLink(&data)
+	if err != nil {
+		log.Println("Error UpdateActivationLink():", err)
+	}
+	if msg != "" {
+		json.NewEncoder(w).Encode(struct{ message string }{msg})
+	} else if err = communications.SendActivationMail(&data); err != nil {
+		log.Println("Error SendActivationMail():", err)
+		json.NewEncoder(w).Encode(struct{ message string }{templates.GetMessage(6)})
+	} else {
+		json.NewEncoder(w).Encode(struct{ message string }{templates.GetMessage(1)})
+	}
+
+}
+
 // ActivateViaEmail try activate account via e-mail
 func ActivateViaEmail(w http.ResponseWriter, r *http.Request) {
 
-	accountID := r.FormValue("link")
+	link := r.FormValue("link")
 
 	response := types.ActivateEmailResult{SignInHidden: true, SignUpHidden: true, ResendLinkHidden: true, Message: ""}
 
-	if accountID == "" {
+	if link == "" {
 		response.Message = templates.GetMessage(4)
 		response.SignUpHidden = false
 	} else {
-
-		err := database.ActivateAccountViaEmail(accountID, &response)
+		err := database.ActivateAccountViaEmail(link, &response)
 		if err != nil {
-			log.Println("Error ActivateAccountViaEmail(): ", err)
+			log.Println("Error ActivateAccountViaEmail():", err)
 		}
-
 	}
 
 	t, _ := template.ParseFiles("www/activate-link.html")

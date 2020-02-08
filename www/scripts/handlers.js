@@ -130,3 +130,42 @@ function signUp() {
   .catch(error => console.log(error));
   
 }
+
+// Resend activation link
+function resendLink() {
+
+  // 1. Blocking elements
+  el = document.getElementById('resendBtn');
+  el.classList.add('busy');
+  if (el.classList.contains('button-primary')) {
+    el.classList.remove('button-primary');
+  }
+
+  // 2. Send data to server
+  axios.post('/resend-link')
+  .then(response => {
+
+    // 3. Unblocking elements
+    el = document.getElementById('resendBtn');
+    el.classList.add('button-primary');
+    if (el.classList.contains('busy')) {
+      el.classList.remove('busy');
+    }
+
+    if (response.data.Ok == true) {
+
+      // 4. Go to activate-link
+      window.location = '/www/activate-link.html';
+
+    } else {
+
+      // 5. Show validation messages
+      el = document.getElementById('userMsg');
+      el.innerText = response.data.UserMsg;
+      el.hidden = (response.data.UserMsg == '');
+      
+    }
+  })
+  .catch(error => console.log(error));
+
+}
