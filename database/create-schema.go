@@ -35,7 +35,7 @@ func createActualSchema(conn *pgx.Conn) error {
 			phone_digits	varchar(30) not null default '', -- only digits of phone number
 			email_confirmed	boolean not null default false, -- email confirmation flag
 			phone_confirmed	boolean not null default false, -- phone confirmation flag
-			creation_date	timestamp not null 		-- creation date of account 
+			creation_date	timestamp with time zone not null -- creation date of account 
 		)`)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func createActualSchema(conn *pgx.Conn) error {
 		`create table if not exists email_confirmations (
 			account_id		integer references accounts(id) on delete cascade, -- reference to account id
 			link			varchar(36) not null default '', -- fragment of the email confirmation link
-			actual_date		timestamp,				-- date when the link expires
+			actual_date		timestamp with time zone, -- date when the link expires
 			primary key (account_id)
 		)`)
 	if err != nil {
@@ -72,7 +72,7 @@ func createActualSchema(conn *pgx.Conn) error {
 		`create table if not exists phone_confirmations (
 			account_id		integer references accounts(id) on delete cascade, -- reference to account id
 			code			varchar(8) not null,	-- phone confirmation code
-			actual_date		timestamp,				-- date when the code expires
+			actual_date		timestamp with time zone, -- date when the code expires
 			primary key (account_id)
 		)`)
 	if err != nil {
