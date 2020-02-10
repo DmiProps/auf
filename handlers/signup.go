@@ -48,7 +48,14 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 func ResendLink(w http.ResponseWriter, r *http.Request) {
 
 	// Get new account data
-	data := types.SignUpData{ActivationLink: r.FormValue("link")}
+	data := types.SignUpData{}
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		log.Println("Error ResendLink():", err)
+		return
+	}
+	r.Body.Close()
 
 	// Send activation e-mail
 	msg, err := database.UpdateActivationLink(&data)
@@ -56,12 +63,18 @@ func ResendLink(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error UpdateActivationLink():", err)
 	}
 	if msg != "" {
-		json.NewEncoder(w).Encode(struct{ message string }{msg})
+		json.NewEncoder(w).Encode(struct {
+			Ok      bool
+			Message string
+		}{false, msg})
 	} else if err = communications.SendActivationMail(&data); err != nil {
 		log.Println("Error SendActivationMail():", err)
-		json.NewEncoder(w).Encode(struct{ message string }{templates.GetMessage(6)})
+		json.NewEncoder(w).Encode(struct {
+			Ok      bool
+			Message string
+		}{false, templates.GetMessage(6)})
 	} else {
-		json.NewEncoder(w).Encode(struct{ message string }{templates.GetMessage(1)})
+		json.NewEncoder(w).Encode(struct{ Ok bool }{true})
 	}
 
 }

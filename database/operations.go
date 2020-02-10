@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -83,7 +82,7 @@ func AddAccount(data *types.SignUpData) (map[string]string, error) {
 			id,
 			data.ActivationLink)
 	} else {
-		actualDate := time.Now().Add(time.Minute * time.Duration(settings.AppSettings.Signup.ActualLinkHours))
+		actualDate := time.Now().Add(time.Hour * time.Duration(settings.AppSettings.Signup.ActualLinkHours))
 		_, err = settings.DbConnect.Exec(
 			context.Background(),
 			`insert into email_confirmations(account_id, link, actual_date) values ($1, $2, $3)`,
@@ -176,10 +175,6 @@ func ActivateAccountViaEmail(link string, result *types.ActivateEmailResult) err
 		result.Message = templates.GetMessage(2)
 		return err
 	}
-
-	fmt.Println(actualDate)
-	fmt.Println(time.Now())
-	fmt.Println("After?", actualDate.After(time.Now()))
 
 	if actualDate == nil || actualDate.IsZero() || actualDate.After(time.Now()) {
 		_, err = settings.DbConnect.Exec(

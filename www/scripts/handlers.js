@@ -134,18 +134,36 @@ function signUp() {
 // Resend activation link
 function resendLink() {
 
-  // 1. Blocking elements
+  // 1. Get link from params
+  var params = window
+    .location
+    .search
+    .replace('?','')
+    .split('&')
+    .reduce(
+        function(p,e){
+            var a = e.split('=');
+            p[ decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+            return p;
+        },
+        {}
+    );
+  data = {
+    ActivationLink: params['link']
+  }
+
+  // 2. Blocking elements
   el = document.getElementById('resendBtn');
   el.classList.add('busy');
   if (el.classList.contains('button-primary')) {
     el.classList.remove('button-primary');
   }
 
-  // 2. Send data to server
-  axios.post('/resend-link')
+  // 3. Send data to server
+  axios.post('/resend-link', data)
   .then(response => {
 
-    // 3. Unblocking elements
+    // 4. Unblocking elements
     el = document.getElementById('resendBtn');
     el.classList.add('button-primary');
     if (el.classList.contains('busy')) {
@@ -154,15 +172,14 @@ function resendLink() {
 
     if (response.data.Ok == true) {
 
-      // 4. Go to activate-link
+      // 5. Go to activate-link
       window.location = '/www/activate-link.html';
 
     } else {
 
-      // 5. Show validation messages
-      el = document.getElementById('userMsg');
-      el.innerText = response.data.UserMsg;
-      el.hidden = (response.data.UserMsg == '');
+      // 6. Show validation messages
+      el = document.getElementById('infoMessage');
+      el.innerText = response.data.Message;
       
     }
   })
