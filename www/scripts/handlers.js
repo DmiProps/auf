@@ -7,7 +7,7 @@ function resetFault(el) {
   
 }
 
-// Validation by client method
+// Validation sign up by client method
 function validateSignUpData(data) {
 
   result = true;
@@ -83,6 +83,7 @@ function signUp() {
   document.getElementById('phoneInput').disabled = true;
 
   document.getElementById('userMsg').hidden = true;
+  document.getElementById('passMsg').hidden = true;
   document.getElementById('emailMsg').hidden = true;
   document.getElementById('phoneMsg').hidden = true;
 
@@ -101,6 +102,7 @@ function signUp() {
     document.getElementById('passInput').disabled = false;
     document.getElementById('emailInput').disabled = false;
     document.getElementById('phoneInput').disabled = false;
+
     el = document.getElementById('signupBtn');
     el.classList.add('button-primary');
     if (el.classList.contains('busy')) {
@@ -118,9 +120,15 @@ function signUp() {
       el = document.getElementById('userMsg');
       el.innerText = response.data.UserMsg;
       el.hidden = (response.data.UserMsg == '');
+
+      el = document.getElementById('passMsg');
+      el.innerText = response.data.PassMsg;
+      el.hidden = (response.data.PassMsg == '');
+
       el = document.getElementById('emailMsg');
       el.innerText = response.data.EmailMsg;
       el.hidden = (response.data.EmailMsg == '');
+
       el = document.getElementById('phoneMsg');
       el.innerText = response.data.PhoneMsg;
       el.hidden = (response.data.PhoneMsg == '');
@@ -187,6 +195,39 @@ function resendLink() {
 
 }
 
+// Validation sign in by client method
+function validateSignInData(data) {
+
+  result = true;
+
+  // Check user name
+  inp = document.getElementById('userInput');
+  msg = document.getElementById('userMsg');
+  if (data.user == '') {
+    inp.classList.add('fault');
+    msg.innerText = 'Required.';
+    msg.hidden = false;
+    result = false;
+  } else {
+    msg.hidden = true;
+  }
+
+  // Check password
+  inp = document.getElementById('passInput');
+  msg = document.getElementById('passMsg');
+  if (data.pass == '') {
+    inp.classList.add('fault');
+    msg.innerText = 'Required.';
+    msg.hidden = false;
+    result = false;
+  } else {
+    msg.hidden = true;
+  }
+
+  return result;
+
+}
+
 // Validate and send authentification data
 function signIn() {
 
@@ -197,36 +238,31 @@ function signIn() {
   }
 
   // 2. Validation by client method
-  /*if (!validateSignUpData(data)) {
+  if (!validateSignInData(data)) {
     return
   }
 
   // 3. Blocking elements
   document.getElementById('userInput').disabled = true;
   document.getElementById('passInput').disabled = true;
-  document.getElementById('emailInput').disabled = true;
-  document.getElementById('phoneInput').disabled = true;
 
   document.getElementById('userMsg').hidden = true;
-  document.getElementById('emailMsg').hidden = true;
-  document.getElementById('phoneMsg').hidden = true;
+  document.getElementById('passMsg').hidden = true;
 
-  el = document.getElementById('signupBtn');
+  el = document.getElementById('signinBtn');
   el.classList.add('busy');
   if (el.classList.contains('button-primary')) {
     el.classList.remove('button-primary');
   }
 
   // 4. Send data to server
-  axios.post('/signup', data)
+  axios.post('/signin', data)
   .then(response => {
 
     // 5. Unblocking elements
     document.getElementById('userInput').disabled = false;
     document.getElementById('passInput').disabled = false;
-    document.getElementById('emailInput').disabled = false;
-    document.getElementById('phoneInput').disabled = false;
-    el = document.getElementById('signupBtn');
+    el = document.getElementById('signinBtn');
     el.classList.add('button-primary');
     if (el.classList.contains('busy')) {
       el.classList.remove('busy');
@@ -235,7 +271,7 @@ function signIn() {
     if (response.data.Ok == true) {
 
       // 6. Go to activate-link
-      window.location = '/www/activate-link.html';
+      //TO-DO: window.location = '/www/activate-link.html';
 
     } else {
 
@@ -243,15 +279,13 @@ function signIn() {
       el = document.getElementById('userMsg');
       el.innerText = response.data.UserMsg;
       el.hidden = (response.data.UserMsg == '');
-      el = document.getElementById('emailMsg');
-      el.innerText = response.data.EmailMsg;
-      el.hidden = (response.data.EmailMsg == '');
-      el = document.getElementById('phoneMsg');
-      el.innerText = response.data.PhoneMsg;
-      el.hidden = (response.data.PhoneMsg == '');
+
+      el = document.getElementById('passMsg');
+      el.innerText = response.data.PassMsg;
+      el.hidden = (response.data.PassMsg == '');
       
     }
   })
-  .catch(error => console.log(error));*/
+  .catch(error => console.log(error));
   
 }
