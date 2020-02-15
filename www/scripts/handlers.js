@@ -271,7 +271,7 @@ function signIn() {
     if (response.data.Ok == true) {
 
       // 6. Go to activate-link
-      //TO-DO: window.location = '/www/activate-link.html';
+      window.location = '/www/account-info.html';
 
     } else {
 

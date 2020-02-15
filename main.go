@@ -29,6 +29,7 @@ func addHTTPRouter() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.Index)
 	r.HandleFunc("/signup", handlers.Signup)
+	r.HandleFunc("/signin", handlers.Signin)
 	r.HandleFunc("/resend-link", handlers.ResendLink)
 	r.HandleFunc("/www/activate-link.html", handlers.ActivateViaEmail)
 
