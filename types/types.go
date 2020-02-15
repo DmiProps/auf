@@ -14,6 +14,7 @@ type SignUpData struct {
 type SignUpResult struct {
 	Ok          bool
 	UserMsg     string
+	PassMsg     string
 	EmailMsg    string
 	PhoneMsg    string
 	ActivateMsg string
@@ -25,4 +26,17 @@ type ActivateEmailResult struct {
 	SignUpHidden     bool
 	ResendLinkHidden bool
 	Message          string
+}
+
+// SignInData contains the data of the sign in to account
+type SignInData struct {
+	User string
+	Pass string
+}
+
+// SignInResult contains result sending sign in data
+type SignInResult struct {
+	Ok      bool
+	UserMsg string
+	PassMsg string
 }
