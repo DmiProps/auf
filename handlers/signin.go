@@ -21,6 +21,8 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 
+	//TO-DO
+
 	json.NewEncoder(w).Encode(struct{ Ok bool }{true})
 
 }
